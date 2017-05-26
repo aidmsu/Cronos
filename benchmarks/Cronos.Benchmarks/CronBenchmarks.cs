@@ -73,185 +73,185 @@ namespace Cronos.Benchmarks
             return CronExpression.Parse("20 * * * *");
         }
 
-        [Benchmark]
-        public CronExpression ParseRange()
-        {
-            return CronExpression.Parse("20-40 * * * *");
-        }
+        //[Benchmark]
+        //public CronExpression ParseRange()
+        //{
+        //    return CronExpression.Parse("20-40 * * * *");
+        //}
 
-        [Benchmark]
-        public CronExpression ParseList()
-        {
-            return CronExpression.Parse("20,30,40,50 * * * *");
-        }
+        //[Benchmark]
+        //public CronExpression ParseList()
+        //{
+        //    return CronExpression.Parse("20,30,40,50 * * * *");
+        //}
 
-        [Benchmark]
-        public CronExpression ParseComplex()
-        {
-            return CronExpression.Parse("*/10 12-20 ? DEC 3");
-        }
+        //[Benchmark]
+        //public CronExpression ParseComplex()
+        //{
+        //    return CronExpression.Parse("*/10 12-20 ? DEC 3");
+        //}
 
-        [Benchmark]
-        public CronExpression ParseMacroEverySecond()
-        {
-            return CronExpression.Parse("@every_second");
-        }
+        //[Benchmark]
+        //public CronExpression ParseMacroEverySecond()
+        //{
+        //    return CronExpression.Parse("@every_second");
+        //}
 
-        [Benchmark]
-        public CronExpression ParseMacroDaily()
-        {
-            return CronExpression.Parse("@daily");
-        }
+        //[Benchmark]
+        //public CronExpression ParseMacroDaily()
+        //{
+        //    return CronExpression.Parse("@daily");
+        //}
 
-        [Benchmark]
-        public DateTime? NextSimpleDateTime()
-        {
-            return SimpleExpression.GetNextOccurrence(DateTimeNow);
-        }
+        //[Benchmark]
+        //public DateTime? NextSimpleDateTime()
+        //{
+        //    return SimpleExpression.GetNextOccurrence(DateTimeNow);
+        //}
 
-        [Benchmark]
-        public DateTime? NextComplexDateTime()
-        {
-            return ComplexExpression.GetNextOccurrence(DateTimeNow);
-        }
+        //[Benchmark]
+        //public DateTime? NextComplexDateTime()
+        //{
+        //    return ComplexExpression.GetNextOccurrence(DateTimeNow);
+        //}
 
-        [Benchmark]
-        public DateTimeOffset? NextSimpleDateTimeOffset()
-        {
-            return SimpleExpression.GetNextOccurrence(DateTimeOffsetNow, UtcTimeZone);
-        }
+        //[Benchmark]
+        //public DateTimeOffset? NextSimpleDateTimeOffset()
+        //{
+        //    return SimpleExpression.GetNextOccurrence(DateTimeOffsetNow, UtcTimeZone);
+        //}
 
-        [Benchmark]
-        public DateTimeOffset? NextComplexDateTimeOffset()
-        {
-            return ComplexExpression.GetNextOccurrence(DateTimeOffsetNow, UtcTimeZone);
-        }
+        //[Benchmark]
+        //public DateTimeOffset? NextComplexDateTimeOffset()
+        //{
+        //    return ComplexExpression.GetNextOccurrence(DateTimeOffsetNow, UtcTimeZone);
+        //}
 
-        [Benchmark]
-        public DateTime? NextSimpleWithTimeZone()
-        {
-            return SimpleExpression.GetNextOccurrence(DateTimeNow, PacificTimeZone);
-        }
+        //[Benchmark]
+        //public DateTime? NextSimpleWithTimeZone()
+        //{
+        //    return SimpleExpression.GetNextOccurrence(DateTimeNow, PacificTimeZone);
+        //}
 
-        [Benchmark]
-        public DateTime? NextComplexWithTimeZone()
-        {
-            return ComplexExpression.GetNextOccurrence(DateTimeNow, PacificTimeZone);
-        }
+        //[Benchmark]
+        //public DateTime? NextComplexWithTimeZone()
+        //{
+        //    return ComplexExpression.GetNextOccurrence(DateTimeNow, PacificTimeZone);
+        //}
 
-        [Benchmark]
-        public void NextUnreachableSimple()
-        {
-            var result = SimpleUnreachableExpression.GetNextOccurrence(DateTimeNow, UtcTimeZone);
-            if (result != null) throw new InvalidOperationException();
-        }
+        //[Benchmark]
+        //public void NextUnreachableSimple()
+        //{
+        //    var result = SimpleUnreachableExpression.GetNextOccurrence(DateTimeNow, UtcTimeZone);
+        //    if (result != null) throw new InvalidOperationException();
+        //}
 
-        [Benchmark]
-        public void NextUnreachableComplex()
-        {
-            var result = ComplexUnreachableExpression.GetNextOccurrence(DateTimeNow, UtcTimeZone);
-            if (result != null) throw new InvalidOperationException();
-        }
+        //[Benchmark]
+        //public void NextUnreachableComplex()
+        //{
+        //    var result = ComplexUnreachableExpression.GetNextOccurrence(DateTimeNow, UtcTimeZone);
+        //    if (result != null) throw new InvalidOperationException();
+        //}
 
-        [Benchmark]
-        public void NextUnreachableLastDayOfWeek()
-        {
-            var result = LastDayOfWeekUnreachableExpression.GetNextOccurrence(DateTimeNow, UtcTimeZone);
-            if (result != null) throw new InvalidOperationException();
-        }
+        //[Benchmark]
+        //public void NextUnreachableLastDayOfWeek()
+        //{
+        //    var result = LastDayOfWeekUnreachableExpression.GetNextOccurrence(DateTimeNow, UtcTimeZone);
+        //    if (result != null) throw new InvalidOperationException();
+        //}
 
-        [Benchmark]
-        public void NextUnreachableNthDayOfWeek()
-        {
-            var result = NthDayOfWeekUnreachableExpression.GetNextOccurrence(DateTimeNow, UtcTimeZone);
-            if (result != null) throw new InvalidOperationException();
-        }
+        //[Benchmark]
+        //public void NextUnreachableNthDayOfWeek()
+        //{
+        //    var result = NthDayOfWeekUnreachableExpression.GetNextOccurrence(DateTimeNow, UtcTimeZone);
+        //    if (result != null) throw new InvalidOperationException();
+        //}
 
-        [Benchmark]
-        public DateTimeOffset? NextHandlesInvalidTime()
-        {
-            var result = SimpleExpression.GetNextOccurrence(SecondBeforeInvalidTime, PacificTimeZone);
-            if (result.Value.Hour != 3) throw new InvalidOperationException();
+        //[Benchmark]
+        //public DateTimeOffset? NextHandlesInvalidTime()
+        //{
+        //    var result = SimpleExpression.GetNextOccurrence(SecondBeforeInvalidTime, PacificTimeZone);
+        //    if (result.Value.Hour != 3) throw new InvalidOperationException();
 
-            return result;
-        }
+        //    return result;
+        //}
 
-        [Benchmark]
-        public DateTimeOffset? NextHandlesAmbiguousDaylight()
-        {
-            return AbmiguousExpression.GetNextOccurrence(AmbiguousDaylightTime, PacificTimeZone);
-        }
+        //[Benchmark]
+        //public DateTimeOffset? NextHandlesAmbiguousDaylight()
+        //{
+        //    return AbmiguousExpression.GetNextOccurrence(AmbiguousDaylightTime, PacificTimeZone);
+        //}
 
-        [Benchmark]
-        public CrontabSchedule ParseStarsNCrontab()
-        {
-            return CrontabSchedule.Parse("* * * * *");
-        }
+        //[Benchmark]
+        //public CrontabSchedule ParseStarsNCrontab()
+        //{
+        //    return CrontabSchedule.Parse("* * * * *");
+        //}
 
-        [Benchmark]
-        public CrontabSchedule ParseComplexNCrontab()
-        {
-            return CrontabSchedule.Parse("*/10 12-20 * DEC 3");
-        }
+        //[Benchmark]
+        //public CrontabSchedule ParseComplexNCrontab()
+        //{
+        //    return CrontabSchedule.Parse("*/10 12-20 * DEC 3");
+        //}
 
-        [Benchmark]
-        public DateTime NextSimpleNCrontab()
-        {
-            return SimpleExpressionNCrontab.GetNextOccurrence(DateTimeNow);
-        }
+        //[Benchmark]
+        //public DateTime NextSimpleNCrontab()
+        //{
+        //    return SimpleExpressionNCrontab.GetNextOccurrence(DateTimeNow);
+        //}
 
-        [Benchmark]
-        public DateTime NextComplexNCrontab()
-        {
-            return ComplexExpressionNCrontab.GetNextOccurrence(DateTimeNow);
-        }
+        //[Benchmark]
+        //public DateTime NextComplexNCrontab()
+        //{
+        //    return ComplexExpressionNCrontab.GetNextOccurrence(DateTimeNow);
+        //}
 
-        [Benchmark]
-        public Quartz.CronExpression ParseStarsQuartz()
-        {
-            return new Quartz.CronExpression("* * * * * ?");
-        }
+        //[Benchmark]
+        //public Quartz.CronExpression ParseStarsQuartz()
+        //{
+        //    return new Quartz.CronExpression("* * * * * ?");
+        //}
 
-        [Benchmark]
-        public Quartz.CronExpression ParseComplexQuartz()
-        {
-            return new Quartz.CronExpression("* */10 12-20 ? DEC 3");
-        }
+        //[Benchmark]
+        //public Quartz.CronExpression ParseComplexQuartz()
+        //{
+        //    return new Quartz.CronExpression("* */10 12-20 ? DEC 3");
+        //}
 
-        [Benchmark]
-        public DateTimeOffset? NextSimpleQuartz()
-        {
-            return SimpleExpressionQuartz.GetTimeAfter(DateTimeOffsetNow);
-        }
+        //[Benchmark]
+        //public DateTimeOffset? NextSimpleQuartz()
+        //{
+        //    return SimpleExpressionQuartz.GetTimeAfter(DateTimeOffsetNow);
+        //}
 
-        [Benchmark]
-        public DateTimeOffset? NextComplexQuartz()
-        {
-            return ComplexExpressionQuartz.GetTimeAfter(DateTimeOffsetNow);
-        }
+        //[Benchmark]
+        //public DateTimeOffset? NextComplexQuartz()
+        //{
+        //    return ComplexExpressionQuartz.GetTimeAfter(DateTimeOffsetNow);
+        //}
 
-        [Benchmark]
-        public NCrontab.Advanced.CrontabSchedule ParseStarsNCrontabAdvanced()
-        {
-            return NCrontab.Advanced.CrontabSchedule.Parse("* * * * *");
-        }
+        //[Benchmark]
+        //public NCrontab.Advanced.CrontabSchedule ParseStarsNCrontabAdvanced()
+        //{
+        //    return NCrontab.Advanced.CrontabSchedule.Parse("* * * * *");
+        //}
 
-        [Benchmark]
-        public NCrontab.Advanced.CrontabSchedule ParseComplexNCrontabAdvanced()
-        {
-            return NCrontab.Advanced.CrontabSchedule.Parse("*/10 12-20 * DEC 3");
-        }
+        //[Benchmark]
+        //public NCrontab.Advanced.CrontabSchedule ParseComplexNCrontabAdvanced()
+        //{
+        //    return NCrontab.Advanced.CrontabSchedule.Parse("*/10 12-20 * DEC 3");
+        //}
 
-        [Benchmark]
-        public DateTime NextSimpleNCrontabAdvanced()
-        {
-            return SimpleExpressionNCrontabAdvanced.GetNextOccurrence(DateTimeNow);
-        }
+        //[Benchmark]
+        //public DateTime NextSimpleNCrontabAdvanced()
+        //{
+        //    return SimpleExpressionNCrontabAdvanced.GetNextOccurrence(DateTimeNow);
+        //}
 
-        [Benchmark]
-        public DateTime NextComplexNCrontabAdvanced()
-        {
-            return ComplexExpressionNCrontabAdvanced.GetNextOccurrence(DateTimeNow);
-        }
+        //[Benchmark]
+        //public DateTime NextComplexNCrontabAdvanced()
+        //{
+        //    return ComplexExpressionNCrontabAdvanced.GetNextOccurrence(DateTimeNow);
+        //}
     }
 }
