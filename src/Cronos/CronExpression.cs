@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
+using System.Text;
 
 namespace Cronos
 {
@@ -257,6 +258,33 @@ namespace Cronos
             {
                 yield return occurrence.Value;
             }
+        }
+
+        /// <inheritdoc />
+        public override string ToString()
+        {
+            return GetStringValue(CronField.Seconds, _second) + " " +
+                   GetStringValue(CronField.Minutes, _minute) + " " +
+                   GetStringValue(CronField.Hours, _hour) + " " +
+                   GetStringValue(CronField.DaysOfMonth, (uint)_dayOfMonth) + " " +
+                   GetStringValue(CronField.Months, _month) + " " +
+                   GetStringValue(CronField.DaysOfWeek, _dayOfWeek);
+        }
+
+        private static string GetStringValue(CronField field, long fieldValue)
+        {
+            if (field.AllBits == fieldValue) return "*";
+
+            var result = new StringBuilder();
+
+            for (var i = field.First; i <= field.Last; i++)
+            {
+                if (!GetBit(fieldValue, i)) continue;
+
+                if (result.Length > 0) result.Append(",");
+                result.Append(i);
+            }
+            return result.ToString();
         }
 
         /// <summary>

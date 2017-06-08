@@ -2420,6 +2420,38 @@ namespace Cronos.Tests
             Assert.True(leftCronExpression.GetHashCode() != rightCronExpression.GetHashCode());
         }
 
+        [Theory]
+
+        // Seconds.
+        [InlineData("* * * * * *", "* * * * * *", CronFormat.IncludeSeconds)]
+        [InlineData("0 * * * * *", "0 * * * * *", CronFormat.IncludeSeconds)]
+        [InlineData("1,2 * * * * *", "1,2 * * * * *", CronFormat.IncludeSeconds)]
+        [InlineData("1-3 * * * * *", "1,2,3 * * * * *", CronFormat.IncludeSeconds)]
+        [InlineData("57-3 * * * * *", "0,1,2,3,57,58,59 * * * * *", CronFormat.IncludeSeconds)]
+        [InlineData("*/10 * * * * *", "0,10,20,30,40,50 * * * * *", CronFormat.IncludeSeconds)]
+        [InlineData("0/10 * * * * *", "0,10,20,30,40,50 * * * * *", CronFormat.IncludeSeconds)]
+        [InlineData("0-20/5 * * * * *", "0,5,10,15,20 * * * * *", CronFormat.IncludeSeconds)]
+
+        [InlineData("10,56-3/2 * * * * *", "0,2,10,56,58 * * * * *", CronFormat.IncludeSeconds)]
+
+        // Minutes.
+        [InlineData("* * * * *", "0 * * * * *", CronFormat.Standard)]
+        [InlineData("0 * * * *", "0 0 * * * *", CronFormat.Standard)]
+        [InlineData("1,2 * * * *", "0 1,2 * * * *", CronFormat.Standard)]
+        [InlineData("1-3 * * * *", "0 1,2,3 * * * *", CronFormat.Standard)]
+        [InlineData("57-3 * * * *", "0 0,1,2,3,57,58,59 * * * *", CronFormat.Standard)]
+        [InlineData("*/10 * * * *", "0 0,10,20,30,40,50 * * * *", CronFormat.Standard)]
+        [InlineData("0/10 * * * *", "0 0,10,20,30,40,50 * * * *", CronFormat.Standard)]
+        [InlineData("0-20/5 * * * *", "0 0,5,10,15,20 * * * *", CronFormat.Standard)]
+
+        [InlineData("10,56-3/2 * * * *", "0 0,2,10,56,58 * * * *", CronFormat.Standard)]
+        public void ToString_ReturnsCorrectString(string cronExpresion, string expectedResult, CronFormat format)
+        {
+            var expression = CronExpression.Parse(cronExpresion, format);
+
+            Assert.Equal(expectedResult, expression.ToString());
+        }
+
         private static IEnumerable<object[]> GetTimeZones()
         {
             yield return new object[] {EasternTimeZone};
