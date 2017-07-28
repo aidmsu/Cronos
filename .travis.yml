@@ -15,6 +15,5 @@ os:
 # Run the build script
 script:
     travis_retry dotnet restore Cronos.sln --disable-parallel;
-    # dotnet test tests/Cronos.Tests/Cronos.Tests.csproj -c:Release -f:netcoreapp1.0;
-    dotnet build benchmarks/Cronos.Benchmarks/Cronos.Benchmarks.csproj -c Release -f netcoreapp1.1
-    dotnet benchmarks/Cronos.Benchmarks/bin/Release/netcoreapp1.1/Cronos.Benchmarks.dll
+    dotnet build benchmarks/Cronos.Benchmarks/Cronos.Benchmarks.csproj -c Release -f netcoreapp1.1;
+    dotnet benchmarks/Cronos.Benchmarks/bin/Release/netcoreapp1.1/Cronos.Benchmarks.dll;
