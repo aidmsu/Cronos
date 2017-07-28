@@ -1,13 +1,33 @@
 ﻿using System;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Attributes.Jobs;
+using BenchmarkDotNet.Columns;
+using BenchmarkDotNet.Configs;
+using BenchmarkDotNet.Engines;
 using NCrontab;
 
 namespace Cronos.Benchmarks
 {
+    [Config(typeof(Config))]
     [RyuJitX64Job]
     public class CronBenchmarks
     {
+        private class Config : ManualConfig
+        {
+            public Config()
+            {
+                Add(StatisticColumn.P0,
+                    StatisticColumn.P25,
+                    StatisticColumn.P50,
+                    StatisticColumn.P67,
+                    StatisticColumn.P80,
+                    StatisticColumn.P85,
+                    StatisticColumn.P90,
+                    StatisticColumn.P95,
+                    StatisticColumn.P100);
+            }
+        }
+        
         private static readonly CronExpression SimpleExpression =
             CronExpression.Parse("* * * * * *", CronFormat.IncludeSeconds);
 
@@ -49,14 +69,14 @@ namespace Cronos.Benchmarks
         private static readonly DateTimeOffset SecondBeforeInvalidTime = new DateTimeOffset(2017, 03, 12, 01, 59, 59, 999, PacificTimeZone.BaseUtcOffset);
         private static readonly DateTimeOffset AmbiguousDaylightTime = new DateTimeOffset(2017, 11, 05, 00, 30, 59, 999, PacificTimeZone.BaseUtcOffset);
 
-        [Benchmark]
+        //[Benchmark]
         public unsafe string ParseBaseline()
         {
             fixed (char* pointer = "* * * * ?")
             {
                 var ptr = pointer;
                 while (*ptr != '\0' && *ptr != '\n' && *ptr != ' ') ptr++;
-
+                
                 return new string(pointer);
             }
         }
@@ -67,7 +87,7 @@ namespace Cronos.Benchmarks
             return CronExpression.Parse("* * * * *");
         }
 
-        [Benchmark]
+        //[Benchmark]
         public CronExpression ParseNumber()
         {
             return CronExpression.Parse("20 * * * *");
