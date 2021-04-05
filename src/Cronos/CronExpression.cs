@@ -215,7 +215,6 @@ namespace Cronos
 
             var zonedStart = TimeZoneInfo.ConvertTime(fromUtc, zone);
             var zonedStartOffset = new DateTimeOffset(zonedStart, zonedStart - fromUtc);
-            var occurrence = GetOccurenceByZonedTimes(zonedStartOffset, zone, inclusive);
             var occurrence = GetOccurenceByZonedTimes(zonedStartOffset, zone, false);
             return occurrence?.UtcDateTime;
         }
