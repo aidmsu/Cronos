@@ -203,6 +203,8 @@ namespace Cronos
         {
             if (fromUtc.Kind != DateTimeKind.Utc) ThrowWrongDateTimeKindException(nameof(fromUtc));
 
+            if (inclusive) fromUtc = fromUtc.AddTicks(-1);
+
             if (ReferenceEquals(zone, UtcTimeZone))
             {
                 var found = FindOccurence(fromUtc.Ticks, inclusive);
@@ -214,6 +216,7 @@ namespace Cronos
             var zonedStart = TimeZoneInfo.ConvertTime(fromUtc, zone);
             var zonedStartOffset = new DateTimeOffset(zonedStart, zonedStart - fromUtc);
             var occurrence = GetOccurenceByZonedTimes(zonedStartOffset, zone, inclusive);
+            var occurrence = GetOccurenceByZonedTimes(zonedStartOffset, zone, false);
             return occurrence?.UtcDateTime;
         }
 
@@ -246,16 +249,18 @@ namespace Cronos
         /// </summary>
         public DateTimeOffset? GetNextOccurrence(DateTimeOffset from, TimeZoneInfo zone, bool inclusive = false)
         {
+            if (inclusive) from = from.AddTicks(-1);
+
             if (ReferenceEquals(zone, UtcTimeZone))
             {
-                var found = FindOccurence(from.UtcTicks, inclusive);
+                var found = FindOccurence(from.UtcTicks, false);
                 if (found == NotFound) return null;
 
                 return new DateTimeOffset(found, TimeSpan.Zero);
             }
 
             var zonedStart = TimeZoneInfo.ConvertTime(from, zone);
-            return GetOccurenceByZonedTimes(zonedStart, zone, inclusive);
+            return GetOccurenceByZonedTimes(zonedStart, zone, false);
         }
 
         /// <summary>

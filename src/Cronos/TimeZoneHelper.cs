@@ -26,6 +26,8 @@ namespace Cronos
 {
     internal static class TimeZoneHelper
     {
+        private static readonly bool IsMonoRuntime = Type.GetType("Mono.Runtime") != null;
+
         // This method is here because .NET Framework, .NET Core and Mono works different when transition from standard time (ST) to
         // daylight saving time (DST) happens.
         // When DST ends you set the clocks backward. If you are in USA it happens on first sunday of November at 2:00 am. 
@@ -35,7 +37,9 @@ namespace Cronos
         // We have to add 1 tick to ambiguousTime to have the same behavior for all frameworks. Thus 1:00 is ambiguous and 2:00 is not ambiguous. 
         public static bool IsAmbiguousTime(TimeZoneInfo zone, DateTime ambiguousTime)
         {
-            return zone.IsAmbiguousTime(ambiguousTime.AddTicks(1));
+            if (IsMonoRuntime) ambiguousTime = ambiguousTime.AddTicks(1);
+
+            return zone.IsAmbiguousTime(ambiguousTime);
         }
 
         public static TimeSpan GetDaylightOffset(TimeZoneInfo zone, DateTime ambiguousDateTime)
@@ -86,7 +90,9 @@ namespace Cronos
 
         private static TimeSpan[] GetAmbiguousOffsets(TimeZoneInfo zone, DateTime ambiguousTime)
         {
-            return zone.GetAmbiguousTimeOffsets(ambiguousTime.AddTicks(1));
+            if (IsMonoRuntime) ambiguousTime = ambiguousTime.AddTicks(1);
+
+            return zone.GetAmbiguousTimeOffsets(ambiguousTime);
         }
 
         private static DateTime GetDstTransitionEndDateTime(TimeZoneInfo zone, DateTime ambiguousDateTime)
