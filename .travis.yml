@@ -26,16 +26,16 @@ matrix:
       mono: latest
       install:
         - nuget restore Cronos.sln
-        - nuget install xunit.runners -Version 1.9.2 -OutputDirectory testrunner
+        - nuget install xunit.runners -Version 2.4.0 -OutputDirectory testrunner
       script:
         - msbuild /p:Configuration=Release Cronos.sln
-        - mono ./testrunner/xunit.runners.1.9.2/tools/xunit.console.clr4.exe ./tests/Cronos.Tests/bin/Release/net452/Cronos.Tests.dll
+        - mono ./testrunner/xunit.runners.2.4.0/tools/xunit.console.clr4.exe ./tests/Cronos.Tests/bin/Release/net452/Cronos.Tests.dll
 
     - os: osx
       mono: latest
       install:
         - nuget restore Cronos.sln
-        - nuget install xunit.runners -Version 1.9.2 -OutputDirectory testrunner
+        - nuget install xunit.runners -Version 2.4.0 -OutputDirectory testrunner
       script:
         - msbuild /p:Configuration=Release Cronos.sln
-        - mono ./testrunner/xunit.runners.1.9.2/tools/xunit.console.clr4.exe ./tests/Cronos.Tests/bin/Release/net452/Cronos.Tests.dll
+        - mono ./testrunner/xunit.runners.2.4.0/tools/xunit.console.clr4.exe ./tests/Cronos.Tests/bin/Release/net452/Cronos.Tests.dll
