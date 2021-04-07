@@ -26,7 +26,7 @@ namespace Cronos
 {
     internal static class TimeZoneHelper
     {
-        private static readonly bool IsMonoRuntime = Type.GetType("Mono.Runtime") != null;
+        public static readonly bool IsMonoRuntime = Type.GetType("Mono.Runtime") != null;
 
         // This method is here because .NET Framework, .NET Core and Mono works different when transition from standard time (ST) to
         // daylight saving time (DST) happens.
@@ -37,7 +37,8 @@ namespace Cronos
         // We have to add 1 tick to ambiguousTime to have the same behavior for all frameworks. Thus 1:00 is ambiguous and 2:00 is not ambiguous. 
         public static bool IsAmbiguousTime(TimeZoneInfo zone, DateTime ambiguousTime)
         {
-            if (IsMonoRuntime) ambiguousTime = ambiguousTime.AddTicks(1);
+            // TODO: Reconsider it.
+           /* if (IsMonoRuntime) */ambiguousTime = ambiguousTime.AddTicks(1);
 
             return zone.IsAmbiguousTime(ambiguousTime);
         }

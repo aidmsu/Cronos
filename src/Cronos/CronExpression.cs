@@ -203,8 +203,6 @@ namespace Cronos
         {
             if (fromUtc.Kind != DateTimeKind.Utc) ThrowWrongDateTimeKindException(nameof(fromUtc));
 
-            if (inclusive) fromUtc = fromUtc.AddTicks(-1);
-
             if (ReferenceEquals(zone, UtcTimeZone))
             {
                 var found = FindOccurence(fromUtc.Ticks, inclusive);
@@ -212,10 +210,10 @@ namespace Cronos
 
                 return new DateTime(found, DateTimeKind.Utc);
             }
+            
+            var fromUtcOffset = new DateTimeOffset(fromUtc);
+            var occurrence = GetOccurrenceConsideringTimeZone(fromUtcOffset, zone, inclusive);
 
-            var zonedStart = TimeZoneInfo.ConvertTime(fromUtc, zone);
-            var zonedStartOffset = new DateTimeOffset(zonedStart, zonedStart - fromUtc);
-            var occurrence = GetOccurenceByZonedTimes(zonedStartOffset, zone, false);
             return occurrence?.UtcDateTime;
         }
 
@@ -248,18 +246,15 @@ namespace Cronos
         /// </summary>
         public DateTimeOffset? GetNextOccurrence(DateTimeOffset from, TimeZoneInfo zone, bool inclusive = false)
         {
-            if (inclusive) from = from.AddTicks(-1);
-
             if (ReferenceEquals(zone, UtcTimeZone))
             {
-                var found = FindOccurence(from.UtcTicks, false);
+                var found = FindOccurence(from.UtcTicks, inclusive);
                 if (found == NotFound) return null;
 
                 return new DateTimeOffset(found, TimeSpan.Zero);
             }
 
-            var zonedStart = TimeZoneInfo.ConvertTime(from, zone);
-            return GetOccurenceByZonedTimes(zonedStart, zone, false);
+            return GetOccurrenceConsideringTimeZone(from, zone, inclusive);
         }
 
         /// <summary>
@@ -370,8 +365,18 @@ namespace Cronos
         public static bool operator !=(CronExpression left, CronExpression right) => !Equals(left, right);
 
 
-        private DateTimeOffset? GetOccurenceByZonedTimes(DateTimeOffset from, TimeZoneInfo zone, bool inclusive)
+        private DateTimeOffset? GetOccurrenceConsideringTimeZone(DateTimeOffset fromUtc, TimeZoneInfo zone, bool inclusive)
         {
+            if (inclusive)
+            {
+                fromUtc = fromUtc.AddTicks(-1);
+                fromUtc = DateTimeHelper.FloorToSeconds(fromUtc);
+                
+                inclusive = false;
+            }
+
+            var from = TimeZoneInfo.ConvertTime(fromUtc, zone);
+
             var fromLocal = from.DateTime;
 
             if (TimeZoneHelper.IsAmbiguousTime(zone, fromLocal))

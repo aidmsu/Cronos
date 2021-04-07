@@ -40,10 +40,14 @@ namespace Cronos.Tests
         private static readonly string EasternTimeZoneId = IsUnix ? "America/New_York" : "Eastern Standard Time";
         private static readonly string JordanTimeZoneId = IsUnix ? "Asia/Amman" : "Jordan Standard Time";
         private static readonly string LordHoweTimeZoneId = IsUnix ? "Australia/Lord_Howe" : "Lord Howe Standard Time";
+        private static readonly string CentralEuropeTimeZoneId = IsUnix ? "Europe/Budapest" : "Central Europe Standard Time";
 
         private static readonly TimeZoneInfo EasternTimeZone = TimeZoneInfo.FindSystemTimeZoneById(EasternTimeZoneId);
         private static readonly TimeZoneInfo JordanTimeZone = TimeZoneInfo.FindSystemTimeZoneById(JordanTimeZoneId);
         private static readonly TimeZoneInfo LordHoweTimeZone = TimeZoneInfo.FindSystemTimeZoneById(LordHoweTimeZoneId);
+        
+        private static readonly TimeZoneInfo CentralEuropeTimeZone = TimeZoneInfo.FindSystemTimeZoneById(CentralEuropeTimeZoneId);
+        private const long CentralEuropeDstStartDateTimeTicks = 637524900000000000; // 2021-03-28 01:00 am UTC
 
         private static readonly DateTime Today = new DateTime(2016, 12, 09);
 
@@ -1139,30 +1143,34 @@ namespace Cronos.Tests
 
         // Run missed.
 
-        [InlineData("0 */30 *      *  *  *    ", "2017-10-01 01:45 +10:30", "2017-10-01 02:30 +11:00")]
-        [InlineData("0 */30 */2    *  *  *    ", "2017-10-01 01:59 +10:30", "2017-10-01 02:30 +11:00")]
-        [InlineData("0 1-58 */2    *  *  *    ", "2017-10-01 01:59 +10:30", "2017-10-01 02:30 +11:00")]
-        [InlineData("0 0,30 0-23/2 *  *  *    ", "2017-10-01 01:59 +10:30", "2017-10-01 02:30 +11:00")]
-        [InlineData("0 */30 2      *  *  *    ", "2017-10-01 01:59 +10:30", "2017-10-01 02:30 +11:00")]
-        [InlineData("0 0,30 2      *  *  *    ", "2017-10-01 01:59 +10:30", "2017-10-01 02:30 +11:00")]
-        [InlineData("0 */30 2      01 10 *    ", "2017-10-01 01:59 +10:30", "2017-10-01 02:30 +11:00")]
-        [InlineData("0 0,30 02     01 10 *    ", "2017-10-01 01:45 +10:30", "2017-10-01 02:30 +11:00")]
-        [InlineData("0 30   2      *  *  *    ", "2017-10-01 01:59 +10:30", "2017-10-01 02:30 +11:00")]
-        [InlineData("0 0,30 */2    *  *  *    ", "2017-10-01 01:59 +10:30", "2017-10-01 02:30 +11:00")]
-        [InlineData("0 30   0-23/2 *  *  *    ", "2017-10-01 01:59 +10:30", "2017-10-01 02:30 +11:00")]
+        [InlineData("0 */30 *      *  *  *    ", "2017-10-01 01:45 +10:30", "2017-10-01 02:30 +11:00", true)]
+        [InlineData("0 */30 */2    *  *  *    ", "2017-10-01 01:59 +10:30", "2017-10-01 02:30 +11:00", true)]
+        [InlineData("0 1-58 */2    *  *  *    ", "2017-10-01 01:59 +10:30", "2017-10-01 02:30 +11:00", true)]
+        [InlineData("0 0,30 0-23/2 *  *  *    ", "2017-10-01 01:59 +10:30", "2017-10-01 02:30 +11:00", true)]
+        [InlineData("0 */30 2      *  *  *    ", "2017-10-01 01:59 +10:30", "2017-10-01 02:30 +11:00", true)]
+        [InlineData("0 0,30 2      *  *  *    ", "2017-10-01 01:59 +10:30", "2017-10-01 02:30 +11:00", true)]
+        [InlineData("0 */30 2      01 10 *    ", "2017-10-01 01:59 +10:30", "2017-10-01 02:30 +11:00", true)]
+        [InlineData("0 0,30 02     01 10 *    ", "2017-10-01 01:45 +10:30", "2017-10-01 02:30 +11:00", true)]
+        [InlineData("0 30   2      *  *  *    ", "2017-10-01 01:59 +10:30", "2017-10-01 02:30 +11:00", true)]
+        [InlineData("0 0,30 */2    *  *  *    ", "2017-10-01 01:59 +10:30", "2017-10-01 02:30 +11:00", true)]
+        [InlineData("0 30   0-23/2 *  *  *    ", "2017-10-01 01:59 +10:30", "2017-10-01 02:30 +11:00", true)]
 
-        [InlineData("0 0,30,59 *      *  *  *    ", "2017-10-01 01:59 +10:30", "2017-10-01 01:59 +10:30")]
-        [InlineData("0 0,30,59 *      *  *  *    ", "2017-10-01 02:30 +11:00", "2017-10-01 02:30 +11:00")]
+        [InlineData("0 0,30,59 *      *  *  *    ", "2017-10-01 01:59 +10:30", "2017-10-01 01:59 +10:30", true)]
+        [InlineData("0 0,30,59 *      *  *  *    ", "2017-10-01 02:30 +11:00", "2017-10-01 02:30 +11:00", true)]
 
-        [InlineData("0 30   *      *  10 SUN#1", "2017-10-01 01:59 +10:30", "2017-10-01 02:30 +11:00")]
-        public void GetNextOccurrence_HandleDST_WhenTheClockTurnForwardHalfHour(string cronExpression, string fromString, string expectedString)
+        [InlineData("0 30   *      *  10 SUN#1", "2017-10-01 01:59 +10:30", "2017-10-01 02:30 +11:00", true)]
+        [InlineData("0 30   *      *  10 SUN#1", "2017-10-01 02:30 +11:00", "2017-10-01 02:30 +11:00", true)]
+
+        [InlineData("0 15   2      *  *  *    ", "2017-10-01 02:30 +11:00", "2017-10-01 02:30 +11:00", true)]
+        [InlineData("0 15   2      *  *  *    ", "2017-10-01 02:30 +11:00", "2017-10-02 02:15 +11:00", false)]
+        public void GetNextOccurrence_HandleDST_WhenTheClockTurnForwardHalfHour(string cronExpression, string fromString, string expectedString, bool inclusive)
         {
             var expression = CronExpression.Parse(cronExpression, CronFormat.IncludeSeconds);
 
             var fromInstant = GetInstant(fromString);
             var expectedInstant = GetInstant(expectedString);
 
-            var executed = expression.GetNextOccurrence(fromInstant, LordHoweTimeZone, inclusive: true);
+            var executed = expression.GetNextOccurrence(fromInstant, LordHoweTimeZone, inclusive);
 
             Assert.Equal(expectedInstant, executed);
             Assert.Equal(expectedInstant.Offset, executed?.Offset);
@@ -1501,18 +1509,21 @@ namespace Cronos.Tests
         }
 
         [Theory]
-        [InlineData("30 0 L  * *", "2017-03-30 23:59 +02:00", "2017-03-31 01:00 +03:00")]
-        [InlineData("30 0 L  * *", "2017-03-31 01:00 +03:00", "2017-04-30 00:30 +03:00")]
-        [InlineData("30 0 LW * *", "2018-03-29 23:59 +02:00", "2018-03-30 01:00 +03:00")]
-        [InlineData("30 0 LW * *", "2018-03-30 01:00 +03:00", "2018-04-30 00:30 +03:00")]
-        public void GetNextOccurrence_HandleDifficultDSTCases_WhenTheClockJumpsForwardOnFriday(string cronExpression, string fromString, string expectedString)
+        [InlineData("30 0 L  * *", "2017-03-30 23:59 +02:00", "2017-03-31 01:00 +03:00", true)]
+        [InlineData("30 0 L  * *", "2017-03-31 01:00 +03:00", "2017-03-31 01:00 +03:00", true)]
+        [InlineData("30 0 LW * *", "2018-03-29 23:59 +02:00", "2018-03-30 01:00 +03:00", true)]
+        [InlineData("30 0 LW * *", "2018-03-30 01:00 +03:00", "2018-03-30 01:00 +03:00", true)]
+
+        [InlineData("30 0 L  * *", "2017-03-31 01:00 +03:00", "2017-04-30 00:30 +03:00", false)]
+        [InlineData("30 0 LW * *", "2018-03-30 01:00 +03:00", "2018-04-30 00:30 +03:00", false)]
+        public void GetNextOccurrence_HandleDifficultDSTCases_WhenTheClockJumpsForwardOnFriday(string cronExpression, string fromString, string expectedString, bool inclusive)
         {
             var expression = CronExpression.Parse(cronExpression);
 
             var fromInstant = GetInstant(fromString);
             var expectedInstant = GetInstant(expectedString);
 
-            var occurrence = expression.GetNextOccurrence(fromInstant, JordanTimeZone, inclusive: true);
+            var occurrence = expression.GetNextOccurrence(fromInstant, JordanTimeZone, inclusive);
 
             // TODO: Rounding error.
             if (occurrence?.Millisecond == 999)
@@ -1526,20 +1537,29 @@ namespace Cronos.Tests
 
         [Theory]
 
-        [InlineData("30 0 L  * *", "2014-10-31 00:30 +02:00", "2014-11-30 00:30 +02:00")]
-        [InlineData("30 0 L  * *", "2014-10-31 00:30 +03:00", "2014-10-31 00:30 +03:00")]
-        [InlineData("30 0 LW * *", "2015-10-30 00:30 +02:00", "2015-11-30 00:30 +02:00")]
-        [InlineData("30 0 LW * *", "2015-10-30 00:30 +03:00", "2015-10-30 00:30 +03:00")]
+        [InlineData("30 0 L  * *", "2014-10-31 00:30 +02:00", "2014-11-30 00:30 +02:00", true)]
+        [InlineData("30 0 L  * *", "2014-10-31 00:30 +02:00", "2014-11-30 00:30 +02:00", false)]
 
-        [InlineData("30 0 29 * *", "2019-03-28 23:59 +02:00", "2019-03-29 01:00 +03:00")]
-        public void GetNextOccurrence_HandleDifficultDSTCases_WhenTheClockJumpsBackwardOnFriday(string cronExpression, string fromString, string expectedString)
+        [InlineData("30 0 L  * *", "2014-10-31 00:30 +03:00", "2014-10-31 00:30 +03:00", true)]
+        [InlineData("30 0 L  * *", "2014-10-31 00:30 +03:00", "2014-11-30 00:30 +02:00", false)]
+
+        [InlineData("30 0 LW * *", "2015-10-30 00:30 +02:00", "2015-11-30 00:30 +02:00", true)]
+        [InlineData("30 0 LW * *", "2015-10-30 00:30 +02:00", "2015-11-30 00:30 +02:00", false)]
+
+        [InlineData("30 0 LW * *", "2015-10-30 00:30 +03:00", "2015-10-30 00:30 +03:00", true)]
+        [InlineData("30 0 LW * *", "2015-10-30 00:30 +03:00", "2015-11-30 00:30 +02:00", false)]
+
+        [InlineData("30 0 29 * *", "2019-03-28 23:59 +02:00", "2019-03-29 01:00 +03:00", true)]
+        [InlineData("30 0 29 * *", "2019-03-29 01:00 +03:00", "2019-03-29 01:00 +03:00", true)]
+        [InlineData("30 0 29 * *", "2019-03-29 01:00 +03:00", "2019-04-29 00:30 +03:00", false)]
+        public void GetNextOccurrence_HandleDifficultDSTCases_WhenTheClockJumpsBackwardOnFriday(string cronExpression, string fromString, string expectedString, bool inclusive)
         {
             var expression = CronExpression.Parse(cronExpression);
 
             var fromInstant = GetInstant(fromString);
             var expectedInstant = GetInstant(expectedString);
 
-            var occurrence = expression.GetNextOccurrence(fromInstant, JordanTimeZone, inclusive: true);
+            var occurrence = expression.GetNextOccurrence(fromInstant, JordanTimeZone, inclusive);
 
             // TODO: Rounding error.
             if (occurrence?.Millisecond == 999)
@@ -2253,6 +2273,45 @@ namespace Cronos.Tests
             Assert.Equal(GetInstantFromLocalTime(expectedString, EasternTimeZone), nextOccurrence);
         }
 
+        // 637525728000000000 ticks = 2021-03-29 (day after dst transition) 02:30
+        public const long CentralEuropeNextOccurrenceTicksAfterDstStartDay = 637525746000000000;
+
+        [Theory]
+
+        // 2021-03-28 is date when the clock jumps forward from 0:59:59 am +01:00 standard time (ST) to 2:00 am +02:00 DST in Central Europe Time Zone (CET).
+        // ________1:59:59 ST///invalid///3:00:00 DST________
+
+        [InlineData("0 30 2 * * *", CentralEuropeDstStartDateTimeTicks, CentralEuropeDstStartDateTimeTicks, true)]
+        [InlineData("0 30 2 * * *", CentralEuropeDstStartDateTimeTicks, CentralEuropeNextOccurrenceTicksAfterDstStartDay, false)]
+
+        [InlineData("0 30 2 * * *", CentralEuropeDstStartDateTimeTicks - 1, CentralEuropeDstStartDateTimeTicks, true)]
+        [InlineData("0 30 2 * * *", CentralEuropeDstStartDateTimeTicks - 1, CentralEuropeDstStartDateTimeTicks, false)]
+
+        [InlineData("0 30 2 * * *", CentralEuropeDstStartDateTimeTicks - 10, CentralEuropeDstStartDateTimeTicks, true)]
+        [InlineData("0 30 2 * * *", CentralEuropeDstStartDateTimeTicks - 10, CentralEuropeDstStartDateTimeTicks, false)]
+
+        [InlineData("0 30 2 * * *", CentralEuropeDstStartDateTimeTicks - TimeSpan.TicksPerMillisecond, CentralEuropeDstStartDateTimeTicks, true)]
+        [InlineData("0 30 2 * * *", CentralEuropeDstStartDateTimeTicks - TimeSpan.TicksPerMillisecond, CentralEuropeDstStartDateTimeTicks, false)]
+
+        [InlineData("0 30 2 * * *", CentralEuropeDstStartDateTimeTicks - TimeSpan.TicksPerSecond, CentralEuropeDstStartDateTimeTicks, true)]
+        [InlineData("0 30 2 * * *", CentralEuropeDstStartDateTimeTicks - TimeSpan.TicksPerSecond, CentralEuropeDstStartDateTimeTicks, false)]
+
+        [InlineData("0 30 2 * * *", CentralEuropeDstStartDateTimeTicks + 1, CentralEuropeNextOccurrenceTicksAfterDstStartDay, true)]
+        [InlineData("0 30 2 * * *", CentralEuropeDstStartDateTimeTicks + 1, CentralEuropeNextOccurrenceTicksAfterDstStartDay, false)]
+
+        // Details: https://github.com/HangfireIO/Cronos/issues/36
+        public void GetNextOccurrence_HandleDST_WhenTheClockJumpsForward_And_TimeZoneIsCet_Issue36(string cronExpression, long ticks, long expectedTicks, bool inclusive)
+        {
+            var expression = CronExpression.Parse(cronExpression, CronFormat.IncludeSeconds);
+
+            var fromInstant = new DateTime(ticks, DateTimeKind.Utc);
+            var expectedInstant = new DateTime(expectedTicks, DateTimeKind.Utc);
+
+            var executed = expression.GetNextOccurrence(fromInstant, CentralEuropeTimeZone, inclusive);
+
+            Assert.Equal(expectedInstant, executed);
+        }
+
         [Fact]
         public void GetOccurrences_DateTime_ThrowsAnException_WhenFromGreaterThanTo()
         {
@@ -2747,6 +2806,7 @@ namespace Cronos.Tests
         {
             yield return new object[] {EasternTimeZone};
             yield return new object[] {JordanTimeZone};
+            yield return new object[] {CentralEuropeTimeZone};
             yield return new object[] {TimeZoneInfo.Utc};
         }
 
