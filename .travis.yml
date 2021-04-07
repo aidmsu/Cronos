@@ -6,10 +6,6 @@ dist: trusty
 
 language: csharp
 
-os: 
-  - linux
-  - osx
-
 matrix:
   include:
     - os: linux
