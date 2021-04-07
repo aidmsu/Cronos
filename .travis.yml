@@ -10,15 +10,17 @@ os:
   - linux
   - osx
 
+install:
+  - nuget restore Cronos.sln
+
 jobs:
   include:
     - dotnet: 2.1.401
       mono: none
       script:
-        travis_retry dotnet restore Cronos.sln --disable-parallel;
-        dotnet test tests/Cronos.Tests/Cronos.Tests.csproj -c:Release -f:netcoreapp2.1;
+        - dotnet test tests/Cronos.Tests/Cronos.Tests.csproj -c:Release -f:netcoreapp2.1;
     - dotnet: none
       mono: latest
       script:
-        travis_retry dotnet restore Cronos.sln --disable-parallel;
-        dotnet test tests/Cronos.Tests/Cronos.Tests.csproj -c:Release -f:net452;
+        - msbuild /p:Configuration=Release Cronos.sln
+        - mono ./testrunner/xunit.runners.1.9.2/tools/xunit.console.clr4.exe ./tests/Cronos.Tests/bin/Release/net452/Cronos.Tests.dll
