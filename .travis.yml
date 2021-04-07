@@ -4,14 +4,12 @@
 sudo: required
 dist: trusty
 
-dotnet: 
-  - 2.1.401
-  - 3.1.407
-  - 5.0.201
-
-mono: 
-  - none
-  - latest
+jobs:
+  include:
+    - dotnet: 2.1.401
+      mono: none
+    - dotnet: none
+      mono: latest
 
 language: csharp
 
