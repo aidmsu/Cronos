@@ -37,8 +37,7 @@ namespace Cronos
         // We have to add 1 tick to ambiguousTime to have the same behavior for all frameworks. Thus 1:00 is ambiguous and 2:00 is not ambiguous. 
         public static bool IsAmbiguousTime(TimeZoneInfo zone, DateTime ambiguousTime)
         {
-            // TODO: Reconsider it.
-           /* if (IsMonoRuntime) */ambiguousTime = ambiguousTime.AddTicks(1);
+            if (IsMonoRuntime) ambiguousTime = ambiguousTime.AddTicks(1);
 
             return zone.IsAmbiguousTime(ambiguousTime);
         }
