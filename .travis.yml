@@ -38,4 +38,4 @@ matrix:
         - nuget install xunit.runner.console -Version 2.4.1 -OutputDirectory testrunner
       script:
         - msbuild /p:Configuration=Release Cronos.sln
-        - mono ./testrunner/xunit.runners.2.4.1/ttools/net472/xunit.console.exe ./tests/Cronos.Tests/bin/Release/net452/Cronos.Tests.dll
+        - mono ./testrunner/xunit.runner.console.2.4.1/tools/net452/xunit.console.exe ./tests/Cronos.Tests/bin/Release/net452/Cronos.Tests.dll
