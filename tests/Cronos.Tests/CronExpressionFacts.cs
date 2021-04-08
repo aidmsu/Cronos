@@ -47,7 +47,6 @@ namespace Cronos.Tests
         private static readonly TimeZoneInfo LordHoweTimeZone = TimeZoneInfo.FindSystemTimeZoneById(LordHoweTimeZoneId);
         
         private static readonly TimeZoneInfo CentralEuropeTimeZone = TimeZoneInfo.FindSystemTimeZoneById(CentralEuropeTimeZoneId);
-        private const long CentralEuropeDstStartDateTimeTicks = 637524900000000000; // 2021-03-28 01:00 am UTC
 
         private static readonly DateTime Today = new DateTime(2016, 12, 09);
 
@@ -2273,39 +2272,36 @@ namespace Cronos.Tests
             Assert.Equal(GetInstantFromLocalTime(expectedString, EasternTimeZone), nextOccurrence);
         }
 
-        // 637525728000000000 ticks = 2021-03-29 (day after dst transition) 02:30
-        public const long CentralEuropeNextOccurrenceTicksAfterDstStartDay = 637525746000000000;
-
         [Theory]
 
-        // 2021-03-28 is date when the clock jumps forward from 0:59:59 am +01:00 standard time (ST) to 2:00 am +02:00 DST in Central Europe Time Zone (CET).
+        // 2021-03-28 is date when the clock jumps forward from 1:59:59 am +01:00 standard time (ST) to 3:00 am +02:00 DST in Central Europe Time Zone (CET).
         // ________1:59:59 ST///invalid///3:00:00 DST________
 
-        [InlineData("0 30 2 * * *", CentralEuropeDstStartDateTimeTicks, CentralEuropeDstStartDateTimeTicks, true)]
-        [InlineData("0 30 2 * * *", CentralEuropeDstStartDateTimeTicks, CentralEuropeNextOccurrenceTicksAfterDstStartDay, false)]
+        [InlineData("0 30 2 * * *", "2021-03-28 03:00:00.0000000 +02:00", "2021-03-28 03:00:00.0000000 +02:00", true)]
+        [InlineData("0 30 2 * * *", "2021-03-28 03:00:00.0000000 +02:00", "2021-03-29 02:30:00.0000000 +02:00", false)]
 
-        [InlineData("0 30 2 * * *", CentralEuropeDstStartDateTimeTicks - 1, CentralEuropeDstStartDateTimeTicks, true)]
-        [InlineData("0 30 2 * * *", CentralEuropeDstStartDateTimeTicks - 1, CentralEuropeDstStartDateTimeTicks, false)]
+        [InlineData("0 30 2 * * *", "2021-03-28 01:59:59.9999999 +01:00", "2021-03-28 03:00:00.0000000 +02:00", true)]
+        [InlineData("0 30 2 * * *", "2021-03-28 01:59:59.9999999 +01:00", "2021-03-28 03:00:00.0000000 +02:00", false)]
 
-        [InlineData("0 30 2 * * *", CentralEuropeDstStartDateTimeTicks - 10, CentralEuropeDstStartDateTimeTicks, true)]
-        [InlineData("0 30 2 * * *", CentralEuropeDstStartDateTimeTicks - 10, CentralEuropeDstStartDateTimeTicks, false)]
+        [InlineData("0 30 2 * * *", "2021-03-28 01:59:59.9999990 +01:00", "2021-03-28 03:00:00.0000000 +02:00", true)]
+        [InlineData("0 30 2 * * *", "2021-03-28 01:59:59.9999990 +01:00", "2021-03-28 03:00:00.0000000 +02:00", false)]
 
-        [InlineData("0 30 2 * * *", CentralEuropeDstStartDateTimeTicks - TimeSpan.TicksPerMillisecond, CentralEuropeDstStartDateTimeTicks, true)]
-        [InlineData("0 30 2 * * *", CentralEuropeDstStartDateTimeTicks - TimeSpan.TicksPerMillisecond, CentralEuropeDstStartDateTimeTicks, false)]
+        [InlineData("0 30 2 * * *", "2021-03-28 01:59:59.9990000 +01:00", "2021-03-28 03:00:00.0000000 +02:00", true)]
+        [InlineData("0 30 2 * * *", "2021-03-28 01:59:59.9990000 +01:00", "2021-03-28 03:00:00.0000000 +02:00", false)]
 
-        [InlineData("0 30 2 * * *", CentralEuropeDstStartDateTimeTicks - TimeSpan.TicksPerSecond, CentralEuropeDstStartDateTimeTicks, true)]
-        [InlineData("0 30 2 * * *", CentralEuropeDstStartDateTimeTicks - TimeSpan.TicksPerSecond, CentralEuropeDstStartDateTimeTicks, false)]
+        [InlineData("0 30 2 * * *", "2021-03-28 01:59:58.0000000 +01:00", "2021-03-28 03:00:00.0000000 +02:00", true)]
+        [InlineData("0 30 2 * * *", "2021-03-28 01:59:58.0000000 +01:00", "2021-03-28 03:00:00.0000000 +02:00", false)]
 
-        [InlineData("0 30 2 * * *", CentralEuropeDstStartDateTimeTicks + 1, CentralEuropeNextOccurrenceTicksAfterDstStartDay, true)]
-        [InlineData("0 30 2 * * *", CentralEuropeDstStartDateTimeTicks + 1, CentralEuropeNextOccurrenceTicksAfterDstStartDay, false)]
+        [InlineData("0 30 2 * * *", "2021-03-28 03:00:00.0000001 +02:00", "2021-03-29 02:30:00.0000000 +02:00", true)]
+        [InlineData("0 30 2 * * *", "2021-03-28 03:00:00.0000001 +02:00", "2021-03-29 02:30:00.0000000 +02:00", false)]
 
         // Details: https://github.com/HangfireIO/Cronos/issues/36
-        public void GetNextOccurrence_HandleDST_WhenTheClockJumpsForward_And_TimeZoneIsCet_Issue36(string cronExpression, long ticks, long expectedTicks, bool inclusive)
+        public void GetNextOccurrence_HandleDST_WhenTheClockJumpsForward_And_TimeZoneIsCet_Issue36(string cronExpression, string fromString, string expectedString, bool inclusive)
         {
             var expression = CronExpression.Parse(cronExpression, CronFormat.IncludeSeconds);
 
-            var fromInstant = new DateTime(ticks, DateTimeKind.Utc);
-            var expectedInstant = new DateTime(expectedTicks, DateTimeKind.Utc);
+            var fromInstant = GetInstant(fromString);
+            var expectedInstant = GetInstant(expectedString);
 
             var executed = expression.GetNextOccurrence(fromInstant, CentralEuropeTimeZone, inclusive);
 
@@ -2848,6 +2844,7 @@ namespace Cronos.Tests
                 {
                     "yyyy-MM-dd HH:mm:ss zzz",
                     "yyyy-MM-dd HH:mm zzz",
+                    "yyyy-MM-dd HH:mm:ss.fffffff zzz"
                 },
                 CultureInfo.InvariantCulture,
                 DateTimeStyles.None);
