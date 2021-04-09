@@ -387,25 +387,25 @@ namespace Cronos
 
             
 #if !NETSTANDARD1_0 && !NET40
-            Output.WriteLine($"fromUtc: {fromUtc}");
+            Output?.WriteLine($"fromUtc: {fromUtc}");
 #endif
 
             var from = TimeZoneInfo.ConvertTime(fromUtc, zone);
 
 #if !NETSTANDARD1_0 && !NET40
-            Output.WriteLine($"Converted fromUtc to zoned from : {from}");
+            Output?.WriteLine($"Converted fromUtc to zoned from : {from}");
 #endif
             var fromLocal = from.DateTime;
 
 #if !NETSTANDARD1_0 && !NET40
-            Output.WriteLine($"fromLocal : {fromLocal}");
-            Output.WriteLine($"IsMono: {TimeZoneHelper.IsMonoRuntime}");
+            Output?.WriteLine($"fromLocal : {fromLocal}");
+            Output?.WriteLine($"IsMono: {TimeZoneHelper.IsMonoRuntime}");
 #endif
 
             if (TimeZoneHelper.IsAmbiguousTime(zone, fromLocal))
             {
 #if !NETSTANDARD1_0 && !NET40
-                Output.WriteLine($"fromLocal is ambiguousTime");
+                Output?.WriteLine($"fromLocal is ambiguousTime");
 #endif
 
                 var currentOffset = from.Offset;
@@ -444,13 +444,13 @@ namespace Cronos
             var occurrence = new DateTime(occurrenceTicks);
 
 #if !NETSTANDARD1_0 && !NET40
-            Output.WriteLine($"Found occurrence: {occurrence}");
+            Output?.WriteLine($"Found occurrence: {occurrence}");
 #endif
 
             if (zone.IsInvalidTime(occurrence))
             {
 #if !NETSTANDARD1_0 && !NET40
-                Output.WriteLine($"Found occurrence is invalid");
+                Output?.WriteLine($"Found occurrence is invalid");
 #endif
                 var nextValidTime = TimeZoneHelper.GetDaylightTimeStart(zone, occurrence);
                 return nextValidTime;
