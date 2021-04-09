@@ -25,4 +25,16 @@
     <DotNetCliToolReference Include="dotnet-sourcelink-git" Version="2.8.3" />
     <DotNetCliToolReference Include="dotnet-sourcelink" Version="2.8.3" />
   </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net45'">
+    <PackageReference Include="xunit">
+      <Version>2.4.0</Version>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <PackageReference Include="xunit">
+      <Version>2.4.0</Version>
+    </PackageReference>
+  </ItemGroup>
 </Project>

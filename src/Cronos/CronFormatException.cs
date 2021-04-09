@@ -27,7 +27,7 @@ namespace Cronos
     /// <summary>
     /// Represents an exception that's thrown, when invalid Cron expression is given.
     /// </summary>
-#if !NETSTANDARD1_0
+#if !NETSTANDARD1_0 && !NET40
     [Serializable]
 #endif
     public class CronFormatException : FormatException

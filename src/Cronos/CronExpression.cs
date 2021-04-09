@@ -26,6 +26,10 @@ using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Text;
 
+#if !NETSTANDARD1_0 && !NET40
+using Xunit.Abstractions;
+#endif
+
 namespace Cronos
 {
     /// <summary>
@@ -79,6 +83,9 @@ namespace Cronos
         {
         }
 
+#if !NETSTANDARD1_0 && !NET40
+        public ITestOutputHelper Output { get; set; }
+#endif
         ///<summary>
         /// Constructs a new <see cref="CronExpression"/> based on the specified
         /// cron expression. It's supported expressions consisting of 5 fields:
@@ -369,18 +376,38 @@ namespace Cronos
         {
             if (inclusive)
             {
+                // https://github.com/HangfireIO/Cronos/issues/36
                 fromUtc = fromUtc.AddTicks(-1);
+                // Also We have to round dateTime to seconds due to TimezoneInfo implementations.
+                // E.g. ...
                 fromUtc = DateTimeHelper.FloorToSeconds(fromUtc);
                 
                 inclusive = false;
             }
 
+            
+#if !NETSTANDARD1_0 && !NET40
+            Output.WriteLine($"fromUtc: {fromUtc}");
+#endif
+
             var from = TimeZoneInfo.ConvertTime(fromUtc, zone);
 
+#if !NETSTANDARD1_0 && !NET40
+            Output.WriteLine($"Converted fromUtc to zoned from : {from}");
+#endif
             var fromLocal = from.DateTime;
+
+#if !NETSTANDARD1_0 && !NET40
+            Output.WriteLine($"fromLocal : {fromLocal}");
+            Output.WriteLine($"IsMono: {TimeZoneHelper.IsMonoRuntime}");
+#endif
 
             if (TimeZoneHelper.IsAmbiguousTime(zone, fromLocal))
             {
+#if !NETSTANDARD1_0 && !NET40
+                Output.WriteLine($"fromLocal is ambiguousTime");
+#endif
+
                 var currentOffset = from.Offset;
                 var standardOffset = zone.BaseUtcOffset;
                
@@ -411,12 +438,20 @@ namespace Cronos
             }
 
             var occurrenceTicks = FindOccurence(fromLocal.Ticks, inclusive);
+
             if (occurrenceTicks == NotFound) return null;
 
             var occurrence = new DateTime(occurrenceTicks);
 
+#if !NETSTANDARD1_0 && !NET40
+            Output.WriteLine($"Found occurrence: {occurrence}");
+#endif
+
             if (zone.IsInvalidTime(occurrence))
             {
+#if !NETSTANDARD1_0 && !NET40
+                Output.WriteLine($"Found occurrence is invalid");
+#endif
                 var nextValidTime = TimeZoneHelper.GetDaylightTimeStart(zone, occurrence);
                 return nextValidTime;
             }
