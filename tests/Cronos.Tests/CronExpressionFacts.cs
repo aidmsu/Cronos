@@ -2303,6 +2303,9 @@ namespace Cronos.Tests
         [InlineData("0 30 2 * * *", "2021-03-28 03:00:00.0000001 +02:00", "2021-03-29 02:30:00.0000000 +02:00", true)]
         [InlineData("0 30 2 * * *", "2021-03-28 03:00:00.0000001 +02:00", "2021-03-29 02:30:00.0000000 +02:00", false)]
 
+        [InlineData("0 30 2 * * *", "2021-03-28 03:00:00.0000002 +02:00", "2021-03-29 02:30:00.0000000 +02:00", true)]
+        [InlineData("0 30 2 * * *", "2021-03-28 03:00:00.0000002 +02:00", "2021-03-29 02:30:00.0000000 +02:00", false)]
+
         // Details: https://github.com/HangfireIO/Cronos/issues/36
         public void GetNextOccurrence_HandleDST_WhenTheClockJumpsForward_And_TimeZoneIsCet_Issue36(string cronExpression, string fromString, string expectedString, bool inclusive)
         {
