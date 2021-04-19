@@ -20,6 +20,7 @@ script:
 # Mono
 
 _shared_job : &mono_job
+  mono: latest
   install:
     - nuget restore Cronos.sln
     - nuget install xunit.runner.console -Version 2.4.1 -OutputDirectory testrunner
@@ -31,9 +32,7 @@ jobs:
   include:
     - os: linux
       dist: xenial
-      mono: latest
       <<: *mono_job
 
     - os: osx
-      mono: latest
       <<: *mono_job
