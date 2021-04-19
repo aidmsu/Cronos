@@ -3,60 +3,37 @@
 
 sudo: required
 dist: trusty
+dotnet: 2.1.401
+mono: none
 
 language: csharp
 
-matrix:
+os: 
+  - linux
+  - osx
+  
+# Run the build script
+script:
+    travis_retry dotnet restore Cronos.sln --disable-parallel;
+    dotnet test tests/Cronos.Tests/Cronos.Tests.csproj -c:Release -f:netcoreapp2.1;
+
+# Mono
+
+_shared_job : &mono_job
+  install:
+    nuget restore Cronos.sln
+    nuget install xunit.runner.console -Version 2.4.1 -OutputDirectory testrunner
+  script:
+    msbuild /p:Configuration=Release Cronos.sln
+    mono ./testrunner/xunit.runner.console.2.4.1/tools/net452/xunit.console.exe ./tests/Cronos.Tests/bin/Release/net452/Cronos.Tests.dll
+
+jobs:
   include:
-    # - os: linux
-    #   dotnet: 2.1.401
-    #   mono: none
-    #   script:
-    #     - travis_retry dotnet restore Cronos.sln --disable-parallel;
-    #     - dotnet test tests/Cronos.Tests/Cronos.Tests.csproj -c:Release -f:netcoreapp2.1;
-
-    # - os: osx
-    #   dotnet: 2.1.401
-    #   mono: none
-    #   script:
-    #     - travis_retry dotnet restore Cronos.sln --disable-parallel;
-    #     - dotnet test tests/Cronos.Tests/Cronos.Tests.csproj -c:Release -f:netcoreapp2.1;
-
     - os: linux
-      dist: trusty
+      dist: xenial
       mono: latest
-      install:
-        - nuget restore Cronos.sln
-        - nuget install xunit.runner.console -Version 2.4.1 -OutputDirectory testrunner
-      script:
-        - msbuild /p:Configuration=Release Cronos.sln
-        - mono ./testrunner/xunit.runner.console.2.4.1/tools/net452/xunit.console.exe ./tests/Cronos.Tests/bin/Release/net452/Cronos.Tests.dll
+      <<: *mono_job
 
-    # - os: linux
-    #   dist: xenial
-    #   mono: latest
-    #   install:
-    #     - nuget restore Cronos.sln
-    #     - nuget install xunit.runner.console -Version 2.4.1 -OutputDirectory testrunner
-    #   script:
-    #     - msbuild /p:Configuration=Release Cronos.sln
-    #     - mono ./testrunner/xunit.runner.console.2.4.1/tools/net452/xunit.console.exe ./tests/Cronos.Tests/bin/Release/net452/Cronos.Tests.dll
-
-    # - os: linux
-    #   dist: bionic
-    #   mono: latest
-    #   install:
-    #     - nuget restore Cronos.sln
-    #     - nuget install xunit.runner.console -Version 2.4.1 -OutputDirectory testrunner
-    #   script:
-    #     - msbuild /p:Configuration=Release Cronos.sln
-    #     - mono ./testrunner/xunit.runner.console.2.4.1/tools/net452/xunit.console.exe ./tests/Cronos.Tests/bin/Release/net452/Cronos.Tests.dll
-
-    # - os: osx
-    #   mono: latest
-    #   install:
-    #     - nuget restore Cronos.sln
-    #     - nuget install xunit.runner.console -Version 2.4.1 -OutputDirectory testrunner
-    #   script:
-    #     - msbuild /p:Configuration=Release Cronos.sln
-    #     - mono ./testrunner/xunit.runner.console.2.4.1/tools/net452/xunit.console.exe ./tests/Cronos.Tests/bin/Release/net452/Cronos.Tests.dll
+    - os: osx
+      mono: latest
+      <<: *mono_job
