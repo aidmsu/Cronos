@@ -23,6 +23,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 
@@ -382,6 +383,10 @@ namespace Cronos
                 inclusive = false;
             }
 
+#if !NETSTANDARD1_0
+            var adjustmentRule = zone.GetAdjustmentRules().Single(rule => rule.DateStart < fromUtc.UtcDateTime && rule.DateEnd > fromUtc.UtcDateTime);
+            Output($"adjustmentRule. transition start time: {adjustmentRule.DaylightTransitionStart.TimeOfDay:O} transition end time: {adjustmentRule.DaylightTransitionEnd.TimeOfDay}");
+#endif
             var from = TimeZoneInfo.ConvertTime(fromUtc, zone);
             
             Output($"zoned from: {from:O}");
