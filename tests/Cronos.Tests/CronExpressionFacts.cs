@@ -26,6 +26,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Cronos.Tests
 {
@@ -50,6 +51,13 @@ namespace Cronos.Tests
         private static readonly DateTime Today = new DateTime(2016, 12, 09);
 
         private static readonly CronExpression MinutelyExpression = CronExpression.Parse("* * * * *");
+
+        private ITestOutputHelper _output;
+
+        public CronExpressionFacts(ITestOutputHelper output)
+        {
+            _output = output;
+        }
 
         [Theory]
 
@@ -1178,6 +1186,11 @@ namespace Cronos.Tests
         public void GetNextOccurrence_HandleDST_WhenTheClockJumpsBackwardAndFromIsAroundDST(string cronExpression, string fromString, string expectedString, bool inclusive)
         {
             var expression = CronExpression.Parse(cronExpression);
+
+
+#if !NETCOREAPP1_1
+            expression.Output = _output.WriteLine;
+#endif
 
             var fromInstant = GetInstant(fromString);
             var expectedInstant = GetInstant(expectedString);

@@ -79,6 +79,8 @@ namespace Cronos
         {
         }
 
+        public Action<string> Output { get; set; } = s => { };
+
         ///<summary>
         /// Constructs a new <see cref="CronExpression"/> based on the specified
         /// cron expression. It's supported expressions consisting of 5 fields:
@@ -369,34 +371,53 @@ namespace Cronos
         {
             if (!DateTimeHelper.IsRound(fromUtc))
             {
+                Output($"fromUtc is not round: {fromUtc:O}");
                 // Rarely, if fromUtc is very close to DST transition, `TimeZoneInfo.ConvertTime` may not convert it correctly on Windows.
                 // E.g., In Jordan Time DST started 2017-03-31 00:00 local time. Clocks jump forward from `2017-03-31 00:00 +02:00` to `2017-03-31 01:00 +3:00`.
                 // But `2017-03-30 23:59:59.9999000 +02:00` will be converted to `2017-03-31 00:59:59.9999000 +03:00` instead of `2017-03-30 23:59:59.9999000 +02:00` on Windows.
                 // It can lead to skipped occurrences. To avoid such errors we floor fromUtc to seconds:
                 // `2017-03-30 23:59:59.9999000 +02:00` will be floored to `2017-03-30 23:59:59.0000000 +02:00` and will be converted to `2017-03-30 23:59:59.0000000 +02:00`.
                 fromUtc = DateTimeHelper.FloorToSeconds(fromUtc);
+                Output($"Floored fromUtc: {fromUtc:O}");
                 inclusive = false;
             }
 
             var from = TimeZoneInfo.ConvertTime(fromUtc, zone);
-
+            
+            Output($"zoned from: {from:O}");
+            
             var fromLocal = from.DateTime;
+
+            Output($"fromLocal: {fromLocal:O}");
 
             if (TimeZoneHelper.IsAmbiguousTime(zone, fromLocal))
             {
+                Output($"fromLocal is ambiguous");
+
                 var currentOffset = from.Offset;
                 var standardOffset = zone.BaseUtcOffset;
                
                 if (standardOffset != currentOffset)
                 {
+                    Output($"Finding in daylight offset");
+
                     var daylightOffset = TimeZoneHelper.GetDaylightOffset(zone, fromLocal);
+                    
+                    Output($"daylightOffset: {daylightOffset}");
+
                     var daylightTimeLocalEnd = TimeZoneHelper.GetDaylightTimeEnd(zone, fromLocal, daylightOffset).DateTime;
 
                     // Early period, try to find anything here.
                     var foundInDaylightOffset = FindOccurrence(fromLocal.Ticks, daylightTimeLocalEnd.Ticks, inclusive);
+
+                    Output($"foundInDaylightOffset: {foundInDaylightOffset}");
+
                     if (foundInDaylightOffset != NotFound) return new DateTimeOffset(foundInDaylightOffset, daylightOffset);
 
                     fromLocal = TimeZoneHelper.GetStandardTimeStart(zone, fromLocal, daylightOffset).DateTime;
+
+                    Output($"Changed fromLocal: {fromLocal}");
+
                     inclusive = true;
                 }
 
@@ -418,6 +439,8 @@ namespace Cronos
 
             var occurrence = new DateTime(occurrenceTicks);
 
+            Output($"Found occurrence: {occurrence}");
+
             if (zone.IsInvalidTime(occurrence))
             {
                 var nextValidTime = TimeZoneHelper.GetDaylightTimeStart(zone, occurrence);
@@ -426,11 +449,19 @@ namespace Cronos
 
             if (TimeZoneHelper.IsAmbiguousTime(zone, occurrence))
             {
+                Output($"Found occurrence is ambiguous in zone: {zone.StandardName}");
+
                 var daylightOffset = TimeZoneHelper.GetDaylightOffset(zone, occurrence);
-                return new DateTimeOffset(occurrence, daylightOffset);
+                
+                var daylightResult = new DateTimeOffset(occurrence, daylightOffset);
+                Output($"Found occurrence is ambiguous in zone: {daylightResult}");
+                return daylightResult;
             }
 
-            return new DateTimeOffset(occurrence, zone.GetUtcOffset(occurrence));
+            var result = new DateTimeOffset(occurrence, zone.GetUtcOffset(occurrence));
+            Output($"Return value: {result}");
+
+            return result;
         }
 
         private long FindOccurrence(long startTimeTicks, long endTimeTicks, bool startInclusive)
