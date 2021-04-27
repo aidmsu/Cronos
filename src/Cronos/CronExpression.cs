@@ -385,7 +385,7 @@ namespace Cronos
 
 #if !NETSTANDARD1_0
             var adjustmentRule = zone.GetAdjustmentRules().Single(rule => rule.DateStart < fromUtc.UtcDateTime && rule.DateEnd > fromUtc.UtcDateTime);
-            Output($"adjustmentRule. transition start time: {adjustmentRule.DaylightTransitionStart.TimeOfDay:O} transition end time: {adjustmentRule.DaylightTransitionEnd.TimeOfDay:O}");
+            Output($"adjustmentRule. DaylightDelta: {adjustmentRule.DaylightDelta}; transition start time: {adjustmentRule.DaylightTransitionStart.TimeOfDay:O} transition end time: {adjustmentRule.DaylightTransitionEnd.TimeOfDay:O}");
 #endif
             var from = TimeZoneInfo.ConvertTime(fromUtc, zone);
             
