@@ -1181,6 +1181,7 @@ namespace Cronos.Tests
         [InlineData("30 23 * * *", "2021-04-03 23:59:59.9990000 -03:00", "2021-04-04 23:30:00 -04:00", false)]
         [InlineData("30 23 * * *", "2021-04-03 23:59:59.9900000 -03:00", "2021-04-04 23:30:00 -04:00", false)]
         [InlineData("30 23 * * *", "2021-04-03 23:59:59.9000000 -03:00", "2021-04-04 23:30:00 -04:00", false)]
+        [InlineData("30 23 * * *", "2021-04-03 23:59:59.0000000 -03:00", "2021-04-04 23:30:00 -04:00", false)]
 
         [InlineData("30 23 * * *", "2021-04-04 00:00:00.0000001 -04:00", "2021-04-04 23:30:00 -04:00", true)]
         public void GetNextOccurrence_HandleDST_WhenTheClockJumpsBackwardAndFromIsAroundDST(string cronExpression, string fromString, string expectedString, bool inclusive)
